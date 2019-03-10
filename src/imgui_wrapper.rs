@@ -34,6 +34,7 @@ use imgui::{
     Ui,
     Window,
 };
+use imgui::*;
 use imgui_gfx_renderer::{
     Renderer,
     Shaders,
@@ -296,32 +297,64 @@ impl ImGuiWrapper {
         imgui.set_imgui_key(ImGuiKey::Z, IMGUI_Z);
     }
 
-    // pub fn render_scene_ui(&mut self, ctx: &mut Context, scene: &mut Box<dyn Scene>) -> SceneState {
-    //     self.update_mouse();
+    pub fn render_scene_ui(&mut self, ctx: &mut Context) {
+        self.update_mouse();
 
-    //     let screen_size = ctx.screen_size();
+        let w = ctx.conf.window_mode.width;
+        let h = ctx.conf.window_mode.height;
 
-    //     let frame_size = FrameSize {
-    //         logical_size: (screen_size.x as f64, screen_size.y as f64),
-    //         hidpi_factor: 1.0,
-    //     };
+        let frame_size = FrameSize {
+            logical_size: (w as f64, h as f64),
+            hidpi_factor: 1.0,
+        };
 
-    //     let now = Instant::now();
-    //     let delta = now - self.last_frame;
-    //     let delta_s = delta.as_secs() as f32 + delta.subsec_nanos() as f32 / 1_000_000_000.0;
-    //     self.last_frame = now;
+        let now = Instant::now();
+        let delta = now - self.last_frame;
+        let delta_s = delta.as_secs() as f32 + delta.subsec_nanos() as f32 / 1_000_000_000.0;
+        self.last_frame = now;
 
-    //     let ui = self.imgui.frame(frame_size, delta_s);
+        let ui = self.imgui.frame(frame_size, delta_s);
 
-    //     let next_scene_state = scene.draw_ui(ctx, &ui);
+        ui.window(im_str!("Hello world"))
+            .size((300.0, 100.0), ImGuiCond::FirstUseEver)
+            .build(|| {
+                ui.text(im_str!("Hello world!"));
+                ui.text(im_str!("こんにちは世界！"));
+                ui.text(im_str!("This...is...imgui-rs!"));
+                ui.separator();
+                let mouse_pos = ui.imgui().mouse_pos();
+                ui.text(im_str!("Mouse Position: ({:.1},{:.1})", mouse_pos.0, mouse_pos.1));
+            });
 
-    //     let factory = &mut *ctx.gfx_context.factory;
-    //     let encoder = &mut ctx.gfx_context.encoder;
+        // ui.window(im_str!("Window name"))
+        //   // .size((window.width, window.height), ImGuiCond::Always)
+        //   // .position((window.x, window.y), ImGuiCond::Always)
+        //   .menu_bar(false)
+        //   .title_bar(false)
+        //   .resizable(false)
+        //   .build(|| {
+        //     ui.menu(im_str!("Build")).build(|| {
+        //       if ui.menu_item(im_str!("Floor")).build() {
+        //         println!("floor clicked");
+        //       }
+        //       ui.menu_item(im_str!("Person")).build();
+        //       ui.menu_item(im_str!("Tennis court")).build();
+        //     });
+        //   });
 
-    //     self.renderer.render(ui, &mut *factory, encoder).expect("Un problème est survenu lors de l'affichage d'ImGui !");
+        // let factory = &mut *ctx.gfx_context.factory;
+        // let encoder = &mut ctx.gfx_context.encoder;
 
-    //     next_scene_state
-    // }
+        // self.renderer.render(ui, &mut *factory, encoder).expect("Un problème est survenu lors de l'affichage d'ImGui !");
+
+        // next_scene_state
+
+        let (factory, _, encoder, _, _) = graphics::get_gfx_objects(ctx);
+        self
+          .renderer
+          .render(ui, &mut *factory, encoder)
+          .unwrap();
+    }
 
     pub fn render_ui_ex<R: FnMut(&Ui) -> (), F: Factory<gfx_device_gl::Resources>, C: CommandBuffer<gfx_device_gl::Resources>>(&mut self, logical_size: (u32, u32), factory: &mut F, encoder: &mut Encoder<gfx_device_gl::Resources, C>, mut run_ui: R) {
         self.update_mouse();

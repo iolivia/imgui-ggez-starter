@@ -40,6 +40,9 @@ impl event::EventHandler for MainState {
             100.0,
             2.0,
         )?;
+
+        self.imgui_wrapper.render_scene_ui(ctx);
+
         graphics::present(ctx);
         Ok(())
     }
