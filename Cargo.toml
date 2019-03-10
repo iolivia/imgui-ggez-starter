@@ -5,3 +5,4 @@ authors = ["oliviaifrim"]
 edition = "2018"
 
 [dependencies]
+ggez = "0.4.4"
