@@ -4,7 +4,7 @@
 extern crate ggez;
 
 use ggez::conf;
-use ggez::event;
+use ggez::event::{self, Axis, Button, Keycode, Mod, MouseButton, MouseState};
 use ggez::graphics::{self, DrawMode, Point2};
 use ggez::{Context, GameResult};
 
@@ -45,6 +45,22 @@ impl event::EventHandler for MainState {
 
         graphics::present(ctx);
         Ok(())
+    }
+
+    fn mouse_motion_event(
+        &mut self,
+        _ctx: &mut Context,
+        _state: MouseState,
+        x: i32,
+        y: i32,
+        xrel: i32,
+        yrel: i32,
+    ) {
+        self.imgui_wrapper.update_mouse_pos(x, y);
+        println!(
+            "Mouse motion, x: {}, y: {}",
+            x, y
+        );
     }
 }
 

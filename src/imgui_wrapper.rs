@@ -316,7 +316,7 @@ impl ImGuiWrapper {
         let ui = self.imgui.frame(frame_size, delta_s);
 
         ui.window(im_str!("Hello world"))
-            .size((300.0, 100.0), ImGuiCond::FirstUseEver)
+            // .size((300.0, 100.0), ImGuiCond::FirstUseEver)
             .build(|| {
                 ui.text(im_str!("Hello world!"));
                 ui.text(im_str!("こんにちは世界！"));
@@ -387,5 +387,9 @@ impl ImGuiWrapper {
         ]);
         self.imgui.set_mouse_wheel(self.mouse_state.wheel);
         self.mouse_state.wheel = 0.0;
+    }
+
+    pub fn update_mouse_pos(&mut self, x: i32, y: i32) {
+      self.mouse_state.pos = (x, y);
     }
 }
