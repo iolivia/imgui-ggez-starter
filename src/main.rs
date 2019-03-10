@@ -1,6 +1,5 @@
 //! The simplest possible example that does something.
 
-
 extern crate ggez;
 
 use ggez::conf;
@@ -20,7 +19,10 @@ struct MainState {
 impl MainState {
     fn new(mut ctx: &mut Context) -> GameResult<MainState> {
         let mut imgui_wrapper = ImGuiWrapper::new(&mut ctx);
-        let s = MainState { pos_x: 0.0, imgui_wrapper };
+        let s = MainState {
+            pos_x: 0.0,
+            imgui_wrapper,
+        };
         Ok(s)
     }
 }
@@ -57,10 +59,34 @@ impl event::EventHandler for MainState {
         yrel: i32,
     ) {
         self.imgui_wrapper.update_mouse_pos(x, y);
-        println!(
-            "Mouse motion, x: {}, y: {}",
-            x, y
-        );
+        // println!("Mouse motion, x: {}, y: {}", x, y);
+    }
+
+    fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
+        self.imgui_wrapper.update_mouse_down((
+            button == MouseButton::Left,
+            button == MouseButton::Right,
+            button == MouseButton::Middle,
+        ));
+        // println!("Mouse button pressed: {:?}, x: {}, y: {}", button, x, y);
+    }
+
+    fn mouse_button_up_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
+        self.imgui_wrapper.update_mouse_down((
+            match button {
+                MouseButton::Left => false,
+                _ => true,
+            },
+            match button {
+                MouseButton::Right => false,
+                _ => true,
+            },
+            match button {
+                MouseButton::Middle => false,
+                _ => true,
+            },
+        ));
+        println!("Mouse button released: {:?}, x: {}, y: {}", button, x, y);
     }
 }
 
