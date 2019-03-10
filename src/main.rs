@@ -10,7 +10,7 @@ use ggez::{Context, GameResult};
 
 mod imgui_wrapper;
 
-use imgui_wrapper::ImGuiWrapper;
+use crate::imgui_wrapper::ImGuiWrapper;
 
 struct MainState {
     pos_x: f32,
@@ -18,7 +18,7 @@ struct MainState {
 }
 
 impl MainState {
-    fn new(ctx: &mut Context) -> GameResult<MainState> {
+    fn new(mut ctx: &mut Context) -> GameResult<MainState> {
         let mut imgui_wrapper = ImGuiWrapper::new(&mut ctx);
         let s = MainState { pos_x: 0.0, imgui_wrapper };
         Ok(s)

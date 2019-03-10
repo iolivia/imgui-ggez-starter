@@ -21,6 +21,8 @@ use ggez::{
         MouseButton,
     },
 };
+use ggez::graphics;
+
 use imgui::{
     FontGlyphRange,
     FrameSize,
@@ -46,7 +48,7 @@ use std::{
     time::Instant,
 };
 
-use crate::context_utils::CtxExtension;
+// use crate::context_utils::CtxExtension;
 // use crate::utils::ggez::CtxExtension;
 
 const IMGUI_TAB: u8 = 0;
@@ -133,7 +135,8 @@ impl ImGuiWrapper {
         }
 
         let shaders = {
-            let version = ctx.gfx_context.device.get_info().shading_language;
+          let version = graphics::get_device(ctx).get_info().shading_language;
+            // let version = ctx.gfx_context.device.get_info().shading_language;
             if version.is_embedded {
                 if version.major >= 3 {
                     Shaders::GlSlEs300
@@ -151,7 +154,18 @@ impl ImGuiWrapper {
 
         Self::configure_keys(&mut imgui);
 
-        let renderer = Renderer::init(&mut imgui, &mut *ctx.gfx_context.factory, shaders, RenderTargetView::new(ctx.gfx_context.screen_render_target.clone())).unwrap();
+        let render_target = graphics::get_screen_render_target(ctx);
+        let factory = graphics::get_factory(ctx);
+
+        let renderer = Renderer::init(
+          &mut imgui,
+          &mut *factory,
+          shaders,
+          RenderTargetView::new(render_target.clone()),
+        )
+        .unwrap();
+
+        // let renderer = Renderer::init(&mut imgui, &mut *ctx.gfx_context.factory, shaders, RenderTargetView::new(ctx.gfx_context.screen_render_target.clone())).unwrap();
         Self { imgui, renderer, last_frame: Instant::now(), mouse_state: MouseState::default() }
     }
 
@@ -248,7 +262,7 @@ impl ImGuiWrapper {
                 self.mouse_state.wheel = y as f32;
             }
             Event::Window { win_event: WindowEvent::Resized(_w, _h), .. } => {
-                self.renderer.update_render_target(RenderTargetView::new(ctx.gfx_context.screen_render_target.clone()));
+                // self.renderer.update_render_target(RenderTargetView::new(ctx.gfx_context.screen_render_target.clone()));
             }
             _ => {}
         }
@@ -282,32 +296,32 @@ impl ImGuiWrapper {
         imgui.set_imgui_key(ImGuiKey::Z, IMGUI_Z);
     }
 
-    pub fn render_scene_ui(&mut self, ctx: &mut Context, scene: &mut Box<dyn Scene>) -> SceneState {
-        self.update_mouse();
+    // pub fn render_scene_ui(&mut self, ctx: &mut Context, scene: &mut Box<dyn Scene>) -> SceneState {
+    //     self.update_mouse();
 
-        let screen_size = ctx.screen_size();
+    //     let screen_size = ctx.screen_size();
 
-        let frame_size = FrameSize {
-            logical_size: (screen_size.x as f64, screen_size.y as f64),
-            hidpi_factor: 1.0,
-        };
+    //     let frame_size = FrameSize {
+    //         logical_size: (screen_size.x as f64, screen_size.y as f64),
+    //         hidpi_factor: 1.0,
+    //     };
 
-        let now = Instant::now();
-        let delta = now - self.last_frame;
-        let delta_s = delta.as_secs() as f32 + delta.subsec_nanos() as f32 / 1_000_000_000.0;
-        self.last_frame = now;
+    //     let now = Instant::now();
+    //     let delta = now - self.last_frame;
+    //     let delta_s = delta.as_secs() as f32 + delta.subsec_nanos() as f32 / 1_000_000_000.0;
+    //     self.last_frame = now;
 
-        let ui = self.imgui.frame(frame_size, delta_s);
+    //     let ui = self.imgui.frame(frame_size, delta_s);
 
-        let next_scene_state = scene.draw_ui(ctx, &ui);
+    //     let next_scene_state = scene.draw_ui(ctx, &ui);
 
-        let factory = &mut *ctx.gfx_context.factory;
-        let encoder = &mut ctx.gfx_context.encoder;
+    //     let factory = &mut *ctx.gfx_context.factory;
+    //     let encoder = &mut ctx.gfx_context.encoder;
 
-        self.renderer.render(ui, &mut *factory, encoder).expect("Un problème est survenu lors de l'affichage d'ImGui !");
+    //     self.renderer.render(ui, &mut *factory, encoder).expect("Un problème est survenu lors de l'affichage d'ImGui !");
 
-        next_scene_state
-    }
+    //     next_scene_state
+    // }
 
     pub fn render_ui_ex<R: FnMut(&Ui) -> (), F: Factory<gfx_device_gl::Resources>, C: CommandBuffer<gfx_device_gl::Resources>>(&mut self, logical_size: (u32, u32), factory: &mut F, encoder: &mut Encoder<gfx_device_gl::Resources, C>, mut run_ui: R) {
         self.update_mouse();
