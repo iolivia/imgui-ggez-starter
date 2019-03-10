@@ -6,3 +6,16 @@ edition = "2018"
 
 [dependencies]
 ggez = "0.4.4"
+
+gfx = "0.17.1"
+gfx_core = "0.8.3"
+gfx_device_gl = "0.15.3"
+
+imgui = {  git="https://github.com/Gekkio/imgui-rs" }
+imgui-gfx-renderer = { git="https://github.com/Gekkio/imgui-rs" }
+imgui-sys = { git="https://github.com/Gekkio/imgui-rs" }
+
+sdl2 = "0.31.0"
+
+nalgebra = { version="0.14", features= ["serde-serialize"] }
+

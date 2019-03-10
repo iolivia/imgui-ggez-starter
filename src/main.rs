@@ -1,5 +1,6 @@
 //! The simplest possible example that does something.
 
+
 extern crate ggez;
 
 use ggez::conf;
@@ -7,13 +8,19 @@ use ggez::event;
 use ggez::graphics::{self, DrawMode, Point2};
 use ggez::{Context, GameResult};
 
+mod imgui_wrapper;
+
+use imgui_wrapper::ImGuiWrapper;
+
 struct MainState {
     pos_x: f32,
+    imgui_wrapper: ImGuiWrapper,
 }
 
 impl MainState {
-    fn new(_ctx: &mut Context) -> GameResult<MainState> {
-        let s = MainState { pos_x: 0.0 };
+    fn new(ctx: &mut Context) -> GameResult<MainState> {
+        let mut imgui_wrapper = ImGuiWrapper::new(&mut ctx);
+        let s = MainState { pos_x: 0.0, imgui_wrapper };
         Ok(s)
     }
 }
