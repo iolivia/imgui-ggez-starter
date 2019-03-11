@@ -1,32 +1,14 @@
-use gfx_core::{handle::RenderTargetView, memory::Typed};
-use gfx_device_gl;
 use ggez::graphics;
 use ggez::Context;
 
-use imgui::*;
-use imgui::{FrameSize, ImGui, ImGuiCond, Window};
-use imgui_gfx_renderer::{Renderer, Shaders};
-use std::time::Instant;
+use gfx_core::{handle::RenderTargetView, memory::Typed};
 
-const IMGUI_TAB: u8 = 0;
-const IMGUI_LEFT_ARROW: u8 = 1;
-const IMGUI_RIGHT_ARROW: u8 = 2;
-const IMGUI_UP_ARROW: u8 = 3;
-const IMGUI_DOWN_ARROW: u8 = 3;
-const IMGUI_PAGE_UP: u8 = 5;
-const IMGUI_PAGE_DOWN: u8 = 6;
-const IMGUI_HOME: u8 = 7;
-const IMGUI_END: u8 = 8;
-const IMGUI_DELETE: u8 = 9;
-const IMGUI_BACKSPACE: u8 = 10;
-const IMGUI_ENTER: u8 = 11;
-const IMGUI_ESCAPE: u8 = 12;
-const IMGUI_A: u8 = 13;
-const IMGUI_C: u8 = 14;
-const IMGUI_V: u8 = 15;
-const IMGUI_X: u8 = 16;
-const IMGUI_Y: u8 = 17;
-const IMGUI_Z: u8 = 18;
+use gfx_device_gl;
+
+use imgui::*;
+use imgui_gfx_renderer::*;
+
+use std::time::Instant;
 
 #[derive(Copy, Clone, PartialEq, Debug, Default)]
 struct MouseState {
@@ -47,24 +29,6 @@ impl ImGuiWrapper {
   pub fn new(ctx: &mut Context) -> Self {
     let mut imgui = ImGui::init();
 
-    // Fix incorrect colors with sRGB framebuffer
-    fn imgui_gamma_to_linear(col: ImVec4) -> ImVec4 {
-      let x = col.x.powf(2.2);
-      let y = col.y.powf(2.2);
-      let z = col.z.powf(2.2);
-      let w = 1.0 - (1.0 - col.w).powf(2.2);
-      ImVec4::new(x, y, z, w)
-    }
-
-    let style = imgui.style_mut();
-    style.window_rounding = 10.;
-    style.child_rounding = 10.;
-    style.frame_rounding = 10.;
-
-    for col in 0..style.colors.len() {
-      style.colors[col] = imgui_gamma_to_linear(style.colors[col]);
-    }
-
     let shaders = {
       let version = graphics::get_device(ctx).get_info().shading_language;
       if version.is_embedded {
@@ -81,8 +45,6 @@ impl ImGuiWrapper {
         Shaders::GlSl110
       }
     };
-
-    Self::configure_keys(&mut imgui);
 
     let render_target = graphics::get_screen_render_target(ctx);
     let factory = graphics::get_factory(ctx);
@@ -104,31 +66,7 @@ impl ImGuiWrapper {
     }
   }
 
-  fn configure_keys(imgui: &mut ImGui) {
-    use imgui::ImGuiKey;
-
-    imgui.set_imgui_key(ImGuiKey::Tab, IMGUI_TAB);
-    imgui.set_imgui_key(ImGuiKey::LeftArrow, IMGUI_LEFT_ARROW);
-    imgui.set_imgui_key(ImGuiKey::RightArrow, IMGUI_RIGHT_ARROW);
-    imgui.set_imgui_key(ImGuiKey::UpArrow, IMGUI_UP_ARROW);
-    imgui.set_imgui_key(ImGuiKey::DownArrow, IMGUI_DOWN_ARROW);
-    imgui.set_imgui_key(ImGuiKey::PageUp, IMGUI_PAGE_UP);
-    imgui.set_imgui_key(ImGuiKey::PageDown, IMGUI_PAGE_DOWN);
-    imgui.set_imgui_key(ImGuiKey::Home, IMGUI_HOME);
-    imgui.set_imgui_key(ImGuiKey::End, IMGUI_END);
-    imgui.set_imgui_key(ImGuiKey::Delete, IMGUI_DELETE);
-    imgui.set_imgui_key(ImGuiKey::Backspace, IMGUI_BACKSPACE);
-    imgui.set_imgui_key(ImGuiKey::Enter, IMGUI_ENTER);
-    imgui.set_imgui_key(ImGuiKey::Escape, IMGUI_ESCAPE);
-    imgui.set_imgui_key(ImGuiKey::A, IMGUI_A);
-    imgui.set_imgui_key(ImGuiKey::C, IMGUI_C);
-    imgui.set_imgui_key(ImGuiKey::V, IMGUI_V);
-    imgui.set_imgui_key(ImGuiKey::X, IMGUI_X);
-    imgui.set_imgui_key(ImGuiKey::Y, IMGUI_Y);
-    imgui.set_imgui_key(ImGuiKey::Z, IMGUI_Z);
-  }
-
-  pub fn render_scene_ui(&mut self, ctx: &mut Context) {
+  pub fn render(&mut self, ctx: &mut Context) {
     self.update_mouse();
 
     let w = ctx.conf.window_mode.width;

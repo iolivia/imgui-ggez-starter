@@ -1,13 +1,13 @@
 extern crate ggez;
 
+mod imgui_wrapper;
+
 use ggez::conf;
 use ggez::event::Keycode;
 use ggez::event::Mod;
 use ggez::event::{self, MouseButton, MouseState};
 use ggez::graphics::{self, DrawMode, Point2};
 use ggez::{Context, GameResult};
-
-mod imgui_wrapper;
 
 use crate::imgui_wrapper::ImGuiWrapper;
 
@@ -35,15 +35,20 @@ impl event::EventHandler for MainState {
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx);
-        graphics::circle(
-            ctx,
-            DrawMode::Fill,
-            Point2::new(self.pos_x, 380.0),
-            100.0,
-            2.0,
-        )?;
 
-        self.imgui_wrapper.render_scene_ui(ctx);
+        // Render game stuff
+        {
+            graphics::circle(
+                ctx,
+                DrawMode::Fill,
+                Point2::new(self.pos_x, 380.0),
+                100.0,
+                2.0,
+            )?;
+        }
+
+        // Render game ui
+        self.imgui_wrapper.render(ctx);
 
         graphics::present(ctx);
         Ok(())
@@ -75,7 +80,7 @@ impl event::EventHandler for MainState {
         ));
     }
 
-    fn mouse_button_up_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
+    fn mouse_button_up_event(&mut self, _ctx: &mut Context, button: MouseButton, _x: i32, _y: i32) {
         self.imgui_wrapper.update_mouse_down((
             match button {
                 MouseButton::Left => false,
@@ -106,7 +111,6 @@ impl event::EventHandler for MainState {
             _ => (),
         }
     }
-    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, repeat: bool) {}
 }
 
 pub fn main() {
