@@ -144,18 +144,20 @@ impl ImGuiWrapper {
 
     let ui = self.imgui.frame(frame_size, delta_s);
 
-    ui.window(im_str!("Window name"))
-      .menu_bar(false)
-      .title_bar(false)
-      .resizable(false)
+    ui.window(im_str!("Hello world"))
+      .size((300.0, 100.0), ImGuiCond::FirstUseEver)
+      .position((100.0, 100.0), ImGuiCond::FirstUseEver)
       .build(|| {
-        ui.menu(im_str!("Build")).build(|| {
-          if ui.menu_item(im_str!("Floor")).build() {
-            println!("floor clicked");
-          }
-          ui.menu_item(im_str!("Person")).build();
-          ui.menu_item(im_str!("Tennis court")).build();
-        });
+        ui.text(im_str!("Hello world!"));
+        ui.text(im_str!("こんにちは世界！"));
+        ui.text(im_str!("This...is...imgui-rs!"));
+        ui.separator();
+        let mouse_pos = ui.imgui().mouse_pos();
+        ui.text(im_str!(
+          "Mouse Position: ({:.1},{:.1})",
+          mouse_pos.0,
+          mouse_pos.1
+        ));
       });
 
     let (factory, _, encoder, _, _) = graphics::get_gfx_objects(ctx);

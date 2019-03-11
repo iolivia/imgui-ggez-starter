@@ -1,9 +1,7 @@
-//! The simplest possible example that does something.
-
 extern crate ggez;
 
 use ggez::conf;
-use ggez::event::{self, Axis, Button, Keycode, Mod, MouseButton, MouseState};
+use ggez::event::{self, MouseButton, MouseState};
 use ggez::graphics::{self, DrawMode, Point2};
 use ggez::{Context, GameResult};
 
@@ -18,7 +16,7 @@ struct MainState {
 
 impl MainState {
     fn new(mut ctx: &mut Context) -> GameResult<MainState> {
-        let mut imgui_wrapper = ImGuiWrapper::new(&mut ctx);
+        let imgui_wrapper = ImGuiWrapper::new(&mut ctx);
         let s = MainState {
             pos_x: 0.0,
             imgui_wrapper,
@@ -55,20 +53,24 @@ impl event::EventHandler for MainState {
         _state: MouseState,
         x: i32,
         y: i32,
-        xrel: i32,
-        yrel: i32,
+        _xrel: i32,
+        _yrel: i32,
     ) {
         self.imgui_wrapper.update_mouse_pos(x, y);
-        // println!("Mouse motion, x: {}, y: {}", x, y);
     }
 
-    fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
+    fn mouse_button_down_event(
+        &mut self,
+        _ctx: &mut Context,
+        button: MouseButton,
+        _x: i32,
+        _y: i32,
+    ) {
         self.imgui_wrapper.update_mouse_down((
             button == MouseButton::Left,
             button == MouseButton::Right,
             button == MouseButton::Middle,
         ));
-        // println!("Mouse button pressed: {:?}, x: {}, y: {}", button, x, y);
     }
 
     fn mouse_button_up_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
@@ -86,13 +88,12 @@ impl event::EventHandler for MainState {
                 _ => true,
             },
         ));
-        println!("Mouse button released: {:?}, x: {}, y: {}", button, x, y);
     }
 }
 
 pub fn main() {
     let c = conf::Conf::new();
-    let ctx = &mut Context::load_from_conf("super_simple", "ggez", c).unwrap();
+    let ctx = &mut Context::load_from_conf("super_simple with imgui", "ggez", c).unwrap();
     let state = &mut MainState::new(ctx).unwrap();
     event::run(ctx, state).unwrap();
 }
