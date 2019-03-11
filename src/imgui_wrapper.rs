@@ -91,35 +91,63 @@ impl ImGuiWrapper {
     let ui = self.imgui.frame(frame_size, delta_s);
 
     // Various ui things
-    ui.window(im_str!("Hello world"))
-      .size((300.0, 600.0), ImGuiCond::FirstUseEver)
-      .position((100.0, 100.0), ImGuiCond::FirstUseEver)
-      .build(|| {
-        ui.text(im_str!("Hello world!"));
-        ui.text(im_str!("こんにちは世界！"));
-        ui.text(im_str!("This...is...imgui-rs!"));
-        ui.separator();
-        let mouse_pos = ui.imgui().mouse_pos();
-        ui.text(im_str!(
-          "Mouse Position: ({:.1},{:.1})",
-          mouse_pos.0,
-          mouse_pos.1
-        ));
+    {
+      // Window
+      ui.window(im_str!("Hello world"))
+        .size((300.0, 600.0), ImGuiCond::FirstUseEver)
+        .position((100.0, 100.0), ImGuiCond::FirstUseEver)
+        .build(|| {
+          ui.text(im_str!("Hello world!"));
+          ui.text(im_str!("こんにちは世界！"));
+          ui.text(im_str!("This...is...imgui-rs!"));
+          ui.separator();
+          let mouse_pos = ui.imgui().mouse_pos();
+          ui.text(im_str!(
+            "Mouse Position: ({:.1},{:.1})",
+            mouse_pos.0,
+            mouse_pos.1
+          ));
 
-        if ui.small_button(im_str!("small button")) {
-          println!("Small button clicked");
+          if ui.small_button(im_str!("small button")) {
+            println!("Small button clicked");
+          }
+        });
+
+      // Popup
+      ui.popup(im_str!("popup"), || {
+        if ui.menu_item(im_str!("popup menu item 1")).build() {
+          println!("popup menu item 1 clicked");
+        }
+
+        if ui.menu_item(im_str!("popup menu item 2")).build() {
+          println!("popup menu item 2 clicked");
         }
       });
 
-    ui.popup(im_str!("popup"), || {
-      if ui.menu_item(im_str!("popup menu item 1")).build() {
-        println!("popup menu item 1 clicked");
-      }
+      // Menu bar
+      ui.main_menu_bar(|| {
+        ui.menu(im_str!("Menu 1")).build(|| {
+          if ui.menu_item(im_str!("Item 1.1")).build() {
+            println!("item 1.1 inside menu bar clicked");
+          }
 
-      if ui.menu_item(im_str!("popup menu item 2")).build() {
-        println!("popup menu item 2 clicked");
-      }
-    });
+          ui.menu(im_str!("Item 1.2")).build(|| {
+            if ui.menu_item(im_str!("Item 1.2.1")).build() {
+              println!("item 1.2.1 inside menu bar clicked");
+            }
+            if ui.menu_item(im_str!("Item 1.2.2")).build() {
+              println!("item 1.2.2 inside menu bar clicked");
+            }
+          });
+        });
+
+        ui.menu(im_str!("Menu 2")).build(|| {
+          if ui.menu_item(im_str!("Item 2.1")).build() {
+            println!("item 2.1 inside menu bar clicked");
+          }
+        });
+      });
+    }
 
     if self.show_popup {
       ui.open_popup(im_str!("popup"));
