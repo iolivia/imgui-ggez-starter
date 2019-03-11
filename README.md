@@ -3,6 +3,16 @@
 ## :dart: What is it?
 This project does pretty much what it says on the tin, it adds imgui to a ggez starter sample. I spent quite a few hours digging through documentation and figuring this out so I am putting it here do you don't have to.
 
+You can find examples for:
+* rendering imgui UI on top of ggez game objects
+* responding to mouse events in UI
+* responding to keyboard events in UI
+* imgui
+  * windows
+  * popups
+  * menu bars and menu items
+  * nested menu items
+
 ![Demo](demo.gif)
 
 ## :running: How to run it?
