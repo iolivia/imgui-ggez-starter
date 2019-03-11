@@ -92,7 +92,13 @@ impl event::EventHandler for MainState {
         ));
     }
 
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, repeat: bool) {
+    fn key_down_event(
+        &mut self,
+        _ctx: &mut Context,
+        keycode: Keycode,
+        _keymod: Mod,
+        _repeat: bool,
+    ) {
         match keycode {
             Keycode::P => {
                 self.imgui_wrapper.open_popup();
@@ -100,12 +106,7 @@ impl event::EventHandler for MainState {
             _ => (),
         }
     }
-    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, repeat: bool) {
-        println!(
-            "Key released: {:?}, modifier {:?}, repeat: {}",
-            keycode, keymod, repeat
-        );
-    }
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, repeat: bool) {}
 }
 
 pub fn main() {

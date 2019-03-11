@@ -176,7 +176,9 @@ impl ImGuiWrapper {
       }
     });
 
-    if self.show_popup {}
+    if self.show_popup {
+      ui.open_popup(im_str!("popup"));
+    }
 
     let (factory, _, encoder, _, _) = graphics::get_gfx_objects(ctx);
     self.renderer.render(ui, &mut *factory, encoder).unwrap();
@@ -203,6 +205,10 @@ impl ImGuiWrapper {
 
   pub fn update_mouse_down(&mut self, pressed: (bool, bool, bool)) {
     self.mouse_state.pressed = pressed;
+
+    if pressed.0 {
+      self.show_popup = false;
+    }
   }
 
   pub fn open_popup(&mut self) {
