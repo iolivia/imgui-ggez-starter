@@ -134,7 +134,7 @@ impl ImGuiWrapper {
 
     let frame_size = FrameSize {
       logical_size: (w as f64, h as f64),
-      hidpi_factor: 1.0,
+      hidpi_factor: 2.0,
     };
 
     let now = Instant::now();
@@ -145,7 +145,7 @@ impl ImGuiWrapper {
     let ui = self.imgui.frame(frame_size, delta_s);
 
     ui.window(im_str!("Hello world"))
-      .size((300.0, 100.0), ImGuiCond::FirstUseEver)
+      .size((300.0, 600.0), ImGuiCond::FirstUseEver)
       .position((100.0, 100.0), ImGuiCond::FirstUseEver)
       .build(|| {
         ui.text(im_str!("Hello world!"));
