@@ -27,8 +27,10 @@ pub struct ImGuiWrapper {
 
 impl ImGuiWrapper {
   pub fn new(ctx: &mut Context) -> Self {
+    // Create the imgui object
     let mut imgui = ImGui::init();
 
+    // Shaders
     let shaders = {
       let version = graphics::get_device(ctx).get_info().shading_language;
       if version.is_embedded {
@@ -46,6 +48,7 @@ impl ImGuiWrapper {
       }
     };
 
+    // Renderer
     let render_target = graphics::get_screen_render_target(ctx);
     let factory = graphics::get_factory(ctx);
 
@@ -57,6 +60,7 @@ impl ImGuiWrapper {
     )
     .unwrap();
 
+    // Create instace
     Self {
       imgui,
       renderer,
@@ -67,8 +71,10 @@ impl ImGuiWrapper {
   }
 
   pub fn render(&mut self, ctx: &mut Context) {
+    // Update mouse
     self.update_mouse();
 
+    // Create new frame
     let w = ctx.conf.window_mode.width;
     let h = ctx.conf.window_mode.height;
 
@@ -84,6 +90,7 @@ impl ImGuiWrapper {
 
     let ui = self.imgui.frame(frame_size, delta_s);
 
+    // Various ui things
     ui.window(im_str!("Hello world"))
       .size((300.0, 600.0), ImGuiCond::FirstUseEver)
       .position((100.0, 100.0), ImGuiCond::FirstUseEver)
@@ -118,6 +125,7 @@ impl ImGuiWrapper {
       ui.open_popup(im_str!("popup"));
     }
 
+    // Render
     let (factory, _, encoder, _, _) = graphics::get_gfx_objects(ctx);
     self.renderer.render(ui, &mut *factory, encoder).unwrap();
   }
@@ -126,6 +134,7 @@ impl ImGuiWrapper {
     self
       .imgui
       .set_mouse_pos(self.mouse_state.pos.0 as f32, self.mouse_state.pos.1 as f32);
+
     self.imgui.set_mouse_down([
       self.mouse_state.pressed.0,
       self.mouse_state.pressed.1,
@@ -133,6 +142,7 @@ impl ImGuiWrapper {
       false,
       false,
     ]);
+
     self.imgui.set_mouse_wheel(self.mouse_state.wheel);
     self.mouse_state.wheel = 0.0;
   }

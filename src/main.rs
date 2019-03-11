@@ -48,7 +48,9 @@ impl event::EventHandler for MainState {
         }
 
         // Render game ui
-        self.imgui_wrapper.render(ctx);
+        {
+            self.imgui_wrapper.render(ctx);
+        }
 
         graphics::present(ctx);
         Ok(())
