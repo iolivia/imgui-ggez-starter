@@ -40,6 +40,7 @@ pub struct ImGuiWrapper {
   pub renderer: Renderer<gfx_device_gl::Resources>,
   last_frame: Instant,
   mouse_state: MouseState,
+  show_popup: bool,
 }
 
 impl ImGuiWrapper {
@@ -99,6 +100,7 @@ impl ImGuiWrapper {
       renderer,
       last_frame: Instant::now(),
       mouse_state: MouseState::default(),
+      show_popup: false,
     }
   }
 
@@ -158,7 +160,23 @@ impl ImGuiWrapper {
           mouse_pos.0,
           mouse_pos.1
         ));
+
+        if ui.small_button(im_str!("small button")) {
+          println!("Small button clicked");
+        }
       });
+
+    ui.popup(im_str!("popup"), || {
+      if ui.menu_item(im_str!("popup menu item 1")).build() {
+        println!("popup menu item 1 clicked");
+      }
+
+      if ui.menu_item(im_str!("popup menu item 2")).build() {
+        println!("popup menu item 2 clicked");
+      }
+    });
+
+    if self.show_popup {}
 
     let (factory, _, encoder, _, _) = graphics::get_gfx_objects(ctx);
     self.renderer.render(ui, &mut *factory, encoder).unwrap();
@@ -185,5 +203,9 @@ impl ImGuiWrapper {
 
   pub fn update_mouse_down(&mut self, pressed: (bool, bool, bool)) {
     self.mouse_state.pressed = pressed;
+  }
+
+  pub fn open_popup(&mut self) {
+    self.show_popup = true;
   }
 }

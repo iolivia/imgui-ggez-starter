@@ -1,6 +1,8 @@
 extern crate ggez;
 
 use ggez::conf;
+use ggez::event::Keycode;
+use ggez::event::Mod;
 use ggez::event::{self, MouseButton, MouseState};
 use ggez::graphics::{self, DrawMode, Point2};
 use ggez::{Context, GameResult};
@@ -88,6 +90,21 @@ impl event::EventHandler for MainState {
                 _ => true,
             },
         ));
+    }
+
+    fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, repeat: bool) {
+        match keycode {
+            Keycode::P => {
+                self.imgui_wrapper.open_popup();
+            }
+            _ => (),
+        }
+    }
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, repeat: bool) {
+        println!(
+            "Key released: {:?}, modifier {:?}, repeat: {}",
+            keycode, keymod, repeat
+        );
     }
 }
 
