@@ -75,8 +75,9 @@ impl ImGuiWrapper {
     self.update_mouse();
 
     // Create new frame
-    let w = ctx.conf.window_mode.width;
-    let h = ctx.conf.window_mode.height;
+    let screen_size = graphics::get_size(ctx);
+    let w = screen_size.0;
+    let h = screen_size.1;
 
     let frame_size = FrameSize {
       logical_size: (w as f64, h as f64),
