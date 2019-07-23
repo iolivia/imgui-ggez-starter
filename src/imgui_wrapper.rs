@@ -18,8 +18,8 @@ struct MouseState {
 }
 
 pub struct ImGuiWrapper {
-  pub imgui: ImGui,
-  pub renderer: Renderer<gfx_device_gl::Resources>,
+  pub imgui: imgui::Context,
+  pub renderer: Renderer<gfx_core::format::Rgba8, gfx_device_gl::Resources>,
   last_frame: Instant,
   mouse_state: MouseState,
   show_popup: bool,
@@ -28,11 +28,15 @@ pub struct ImGuiWrapper {
 impl ImGuiWrapper {
   pub fn new(ctx: &mut Context) -> Self {
     // Create the imgui object
-    let mut imgui = ImGui::init();
+    let mut imgui = imgui::Context::create();
+    let (factory, gfx_device, _, _, _) = graphics::gfx_objects(ctx);
+
+    imgui.io_mut().display_size = [800.0, 600.0];
 
     // Shaders
     let shaders = {
-      let version = graphics::get_device(ctx).get_info().shading_language;
+      // let version = graphics::get_device(ctx).get_info().shading_language;
+      let version = gfx_device.get_info().shading_language;
       if version.is_embedded {
         if version.major >= 3 {
           Shaders::GlSlEs300
@@ -49,14 +53,14 @@ impl ImGuiWrapper {
     };
 
     // Renderer
-    let render_target = graphics::get_screen_render_target(ctx);
-    let factory = graphics::get_factory(ctx);
+    // let render_target = graphics::get_screen_render_target(ctx);
+    // let factory = graphics::get_factory(ctx);
 
     let renderer = Renderer::init(
       &mut imgui,
       &mut *factory,
       shaders,
-      RenderTargetView::new(render_target.clone()),
+      // RenderTargetView::new(render_target.clone()),
     )
     .unwrap();
 
@@ -75,38 +79,38 @@ impl ImGuiWrapper {
     self.update_mouse();
 
     // Create new frame
-    let screen_size = graphics::get_size(ctx);
-    let w = screen_size.0;
-    let h = screen_size.1;
+    let (w, h) = graphics::drawable_size(ctx);
 
-    let frame_size = FrameSize {
-      logical_size: (w as f64, h as f64),
-      hidpi_factor: 2.0,
-    };
+    // let frame_size = FrameSize {
+    //   logical_size: (w as f64, h as f64),
+    //   hidpi_factor: 2.0,
+    // };
 
     let now = Instant::now();
     let delta = now - self.last_frame;
     let delta_s = delta.as_secs() as f32 + delta.subsec_nanos() as f32 / 1_000_000_000.0;
     self.last_frame = now;
 
-    let ui = self.imgui.frame(frame_size, delta_s);
+    // let ui = self.imgui.frame(frame_size, delta_s);
+    let ui = self.imgui.frame();
 
     // Various ui things
     {
       // Window
       ui.window(im_str!("Hello world"))
-        .size((300.0, 600.0), ImGuiCond::FirstUseEver)
-        .position((100.0, 100.0), ImGuiCond::FirstUseEver)
+        .size([300.0, 600.0], imgui::Condition::FirstUseEver)
+        .position([100.0, 100.0], imgui::Condition::FirstUseEver)
         .build(|| {
           ui.text(im_str!("Hello world!"));
           ui.text(im_str!("こんにちは世界！"));
           ui.text(im_str!("This...is...imgui-rs!"));
           ui.separator();
-          let mouse_pos = ui.imgui().mouse_pos();
+          // let mouse_pos = ui.imgui().mouse_pos();
+          let mouse_pos = ui.io().mouse_pos;
           ui.text(im_str!(
             "Mouse Position: ({:.1},{:.1})",
-            mouse_pos.0,
-            mouse_pos.1
+            mouse_pos[0],
+            mouse_pos[1]
           ));
 
           if ui.small_button(im_str!("small button")) {
@@ -155,29 +159,36 @@ impl ImGuiWrapper {
     }
 
     // Render
-    let (factory, _, encoder, _, _) = graphics::get_gfx_objects(ctx);
-    self.renderer.render(ui, &mut *factory, encoder).unwrap();
+    let (factory, _, encoder, _, render_target) = graphics::gfx_objects(ctx);
+    let draw_data = ui.render();
+    self
+      .renderer
+      .render(
+        &mut *factory,
+        encoder,
+        &mut RenderTargetView::new(render_target.clone()),
+        draw_data,
+      )
+      .unwrap();
   }
 
   fn update_mouse(&mut self) {
-    self
-      .imgui
-      .set_mouse_pos(self.mouse_state.pos.0 as f32, self.mouse_state.pos.1 as f32);
+    self.imgui.io_mut().mouse_pos = [self.mouse_state.pos.0 as f32, self.mouse_state.pos.1 as f32];
 
-    self.imgui.set_mouse_down([
+    self.imgui.io_mut().mouse_down = [
       self.mouse_state.pressed.0,
       self.mouse_state.pressed.1,
       self.mouse_state.pressed.2,
       false,
       false,
-    ]);
+    ];
 
-    self.imgui.set_mouse_wheel(self.mouse_state.wheel);
+    self.imgui.io_mut().mouse_wheel = self.mouse_state.wheel;
     self.mouse_state.wheel = 0.0;
   }
 
-  pub fn update_mouse_pos(&mut self, x: i32, y: i32) {
-    self.mouse_state.pos = (x, y);
+  pub fn update_mouse_pos(&mut self, x: f32, y: f32) {
+    self.mouse_state.pos = (x as i32, y as i32);
   }
 
   pub fn update_mouse_down(&mut self, pressed: (bool, bool, bool)) {
