@@ -31,8 +31,6 @@ impl ImGuiWrapper {
     let mut imgui = imgui::Context::create();
     let (factory, gfx_device, _, _, _) = graphics::gfx_objects(ctx);
 
-    imgui.io_mut().display_size = [800.0, 600.0];
-
     // Shaders
     let shaders = {
       // let version = graphics::get_device(ctx).get_info().shading_language;
@@ -85,6 +83,9 @@ impl ImGuiWrapper {
     //   logical_size: (w as f64, h as f64),
     //   hidpi_factor: 2.0,
     // };
+
+    self.imgui.io_mut().display_size = [w, h];
+    self.imgui.io_mut().display_framebuffer_scale = [2.0, 2.0];
 
     let now = Instant::now();
     let delta = now - self.last_frame;
