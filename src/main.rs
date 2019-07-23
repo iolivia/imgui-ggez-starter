@@ -2,10 +2,10 @@ extern crate ggez;
 
 mod imgui_wrapper;
 
-use ggez::{Context, GameResult};
-use ggez::event::{self, EventHandler, MouseButton, KeyCode, KeyMods};
+use ggez::event::{self, EventHandler, KeyCode, KeyMods, MouseButton};
 use ggez::graphics;
 use ggez::nalgebra as na;
+use ggez::{Context, GameResult};
 
 use crate::imgui_wrapper::ImGuiWrapper;
 
@@ -36,14 +36,6 @@ impl EventHandler for MainState {
 
         // Render game stuff
         {
-            // graphics::circle(
-            //     ctx,
-            //     DrawMode::Fill,
-            //     Point2::new(self.pos_x, 380.0),
-            //     100.0,
-            //     2.0,
-            // )?;
-
             let circle = graphics::Mesh::new_circle(
                 ctx,
                 graphics::DrawMode::fill(),
@@ -60,18 +52,11 @@ impl EventHandler for MainState {
             self.imgui_wrapper.render(ctx);
         }
 
-        graphics::present(ctx);
+        graphics::present(ctx)?;
         Ok(())
     }
 
-    fn mouse_motion_event(
-        &mut self,
-        _ctx: &mut Context,
-        x: f32,
-        y: f32,
-        _dx: f32,
-        _dy: f32,
-    ) {
+    fn mouse_motion_event(&mut self, _ctx: &mut Context, x: f32, y: f32, _dx: f32, _dy: f32) {
         self.imgui_wrapper.update_mouse_pos(x, y);
     }
 
@@ -123,24 +108,8 @@ impl EventHandler for MainState {
 }
 
 pub fn main() -> ggez::GameResult {
-    // let c = conf::Conf::new();
-    // let ctx = &mut Context::load_from_conf("super_simple with imgui", "ggez", c).unwrap();
-    // let state = &mut MainState::new(ctx).unwrap();
-    // event::run(ctx, state).unwrap();
-
     let cb = ggez::ContextBuilder::new("super_simple with imgui", "ggez");
     let (ref mut ctx, event_loop) = &mut cb.build()?;
     let state = &mut MainState::new(ctx)?;
     event::run(ctx, event_loop, state)
-
-    // let (mut ctx, mut event_loop) = ContextBuilder::new("super_simple with imgui", "oliviaifrim")
-    //     .build()
-    //     .unwrap();
-
-    // let mut game = MainState::new(&mut ctx);
-
-    // match event::run(&mut ctx, &mut event_loop, &mut game) {
-    //     Ok(_) => println!("Exited cleanly."),
-    //     Err(e) => println!("Error occured: {}", e)
-    // }
 }

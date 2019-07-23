@@ -33,7 +33,6 @@ impl ImGuiWrapper {
 
     // Shaders
     let shaders = {
-      // let version = graphics::get_device(ctx).get_info().shading_language;
       let version = gfx_device.get_info().shading_language;
       if version.is_embedded {
         if version.major >= 3 {
@@ -51,16 +50,7 @@ impl ImGuiWrapper {
     };
 
     // Renderer
-    // let render_target = graphics::get_screen_render_target(ctx);
-    // let factory = graphics::get_factory(ctx);
-
-    let renderer = Renderer::init(
-      &mut imgui,
-      &mut *factory,
-      shaders,
-      // RenderTargetView::new(render_target.clone()),
-    )
-    .unwrap();
+    let renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
 
     // Create instace
     Self {
@@ -77,23 +67,16 @@ impl ImGuiWrapper {
     self.update_mouse();
 
     // Create new frame
-    let (w, h) = graphics::drawable_size(ctx);
-
-    // let frame_size = FrameSize {
-    //   logical_size: (w as f64, h as f64),
-    //   hidpi_factor: 2.0,
-    // };
-
     let now = Instant::now();
     let delta = now - self.last_frame;
     let delta_s = delta.as_secs() as f32 + delta.subsec_nanos() as f32 / 1_000_000_000.0;
     self.last_frame = now;
 
+    let (w, h) = graphics::drawable_size(ctx);
     self.imgui.io_mut().display_size = [w, h];
     self.imgui.io_mut().display_framebuffer_scale = [2.0, 2.0];
     self.imgui.io_mut().delta_time = delta_s;
 
-    // let ui = self.imgui.frame(frame_size, delta_s);
     let ui = self.imgui.frame();
 
     // Various ui things
@@ -107,7 +90,6 @@ impl ImGuiWrapper {
           ui.text(im_str!("こんにちは世界！"));
           ui.text(im_str!("This...is...imgui-rs!"));
           ui.separator();
-          // let mouse_pos = ui.imgui().mouse_pos();
           let mouse_pos = ui.io().mouse_pos;
           ui.text(im_str!(
             "Mouse Position: ({:.1},{:.1})",
