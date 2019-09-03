@@ -62,7 +62,7 @@ impl ImGuiWrapper {
     }
   }
 
-  pub fn render(&mut self, ctx: &mut Context) {
+  pub fn render(&mut self, ctx: &mut Context, hidpi_factor: f32) {
     // Update mouse
     self.update_mouse();
 
@@ -72,12 +72,9 @@ impl ImGuiWrapper {
     let delta_s = delta.as_secs() as f32 + delta.subsec_nanos() as f32 / 1_000_000_000.0;
     self.last_frame = now;
 
-    let (width, height) = graphics::size(ctx);
     let (draw_width, draw_height) = graphics::drawable_size(ctx);
-    let scale_x = (draw_width as f32) / (width as f32);
-    let scale_y = (draw_height as f32) / (height as f32);
-    self.imgui.io_mut().display_size = [width, height];
-    self.imgui.io_mut().display_framebuffer_scale = [scale_x, scale_y];
+    self.imgui.io_mut().display_size = [draw_width, draw_height];
+    self.imgui.io_mut().display_framebuffer_scale = [hidpi_factor, hidpi_factor];
     self.imgui.io_mut().delta_time = delta_s;
 
     let ui = self.imgui.frame();
