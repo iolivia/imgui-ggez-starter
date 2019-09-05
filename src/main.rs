@@ -121,9 +121,7 @@ pub fn main() -> ggez::GameResult {
 
     let cb = ggez::ContextBuilder::new("super_simple with imgui", "ggez")
         .window_setup(conf::WindowSetup::default().title("super_simple with imgui"))
-        .window_mode(
-            conf::WindowMode::default().dimensions(400.0 * hidpi_factor, 300.0 * hidpi_factor),
-        );
+        .window_mode(conf::WindowMode::default().dimensions(750.0, 500.0));
     let (ref mut ctx, event_loop) = &mut cb.build()?;
 
     let state = &mut MainState::new(ctx, hidpi_factor)?;
