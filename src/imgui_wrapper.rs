@@ -24,7 +24,7 @@ pub struct ImGuiWrapper {
   last_frame: Instant,
   mouse_state: MouseState,
   show_popup: bool,
-  // my_texture_id: Option<TextureId>,
+  texture_id: Option<TextureId>,
 }
 
 impl ImGuiWrapper {
@@ -52,7 +52,7 @@ impl ImGuiWrapper {
     };
 
     // Renderer
-    let renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
+    let mut renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
 
     // let (_, texture_view) = factory.create_texture_immutable_u8::<gfx::format::Srgba8>(
     //   gfx::texture::Kind::D2(WIDTH as u16, HEIGHT as u16, gfx::texture::AaMode::Single),
@@ -109,7 +109,7 @@ impl ImGuiWrapper {
       texture::FilterMethod::Bilinear,
       texture::WrapMode::Clamp,
     ));
-    // let texture_id = textures.insert((texture_view, sampler));
+    let texture_id = renderer.textures().insert((texture_view, sampler));
 
     // Create instace
     Self {
@@ -118,6 +118,7 @@ impl ImGuiWrapper {
       last_frame: Instant::now(),
       mouse_state: MouseState::default(),
       show_popup: false,
+      texture_id: Some(texture_id),
     }
   }
 
@@ -140,6 +141,18 @@ impl ImGuiWrapper {
 
     // Various ui things
     {
+      if let Some(texture_id) = self.texture_id {
+        let image = Image::new(&ui, texture_id, [100.0, 100.0]);
+
+        // Window with texture
+        ui.window(im_str!("Hello textures"))
+          .size([150.0, 150.0], imgui::Condition::FirstUseEver)
+          .position([300.0, 150.0], imgui::Condition::FirstUseEver)
+          .build(|| {
+            image.build();
+          });
+      }
+
       // Window
       ui.window(im_str!("Hello world"))
         .size([300.0, 600.0], imgui::Condition::FirstUseEver)
