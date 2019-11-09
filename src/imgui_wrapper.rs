@@ -86,34 +86,30 @@ impl ImGuiWrapper {
       bind: Bind::SHADER_RESOURCE,
       usage: Usage::Dynamic,
     };
-    let raw = factory
-      .create_texture_raw(
-        info,
-        Some(format::ChannelType::Float),
-        Some((
-          &[rgba_image.into_raw().as_slice()],
-          texture::Mipmap::Provided,
-        )),
+    // let raw = factory
+    //   .create_texture_raw(
+    //     info,
+    //     Some(format::ChannelType::Float),
+    //     Some((
+    //       &[rgba_image.into_raw().as_slice()],
+    //       texture::Mipmap::Provided,
+    //     )),
+    //   )
+    //   .unwrap();
+
+    let (_, texture_view) = factory
+      .create_texture_immutable_u8::<format::Srgba8>(
+        kind,
+        texture::Mipmap::Provided,
+        &[rgba_image.into_raw().as_slice()],
       )
       .unwrap();
 
-    // let image_dimensions = rgba_image.dimensions();
-    // let kind = texture::Kind::D2(
-    //     image_dimensions.0 as texture::Size,
-    //     image_dimensions.1 as texture::Size,
-    //     texture::AaMode::Single
-    // );
-    // let info = texture::Info {
-    //     kind: kind,
-    //     levels: 1,
-    //     format: <T::Surface as format::SurfaceTyped>::get_surface_type(),
-    //     bind: Bind::SHADER_RESOURCE,
-    //     usage: Usage::Dynamic,
-    // };
-    // let raw = factory.create_texture_raw(
-    //     info,
-    //     Some(<T::Channel as format::ChannelTyped>::get_channel_type()),
-    //     Some((&[rgba_image.into_raw().as_slice()], texture::Mipmap::Provided))).unwrap();
+    let sampler = factory.create_sampler(texture::SamplerInfo::new(
+      texture::FilterMethod::Bilinear,
+      texture::WrapMode::Clamp,
+    ));
+    // let texture_id = textures.insert((texture_view, sampler));
 
     // Create instace
     Self {
