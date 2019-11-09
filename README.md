@@ -12,6 +12,7 @@ You can find examples for:
   * popups
   * menu bars and menu items
   * nested menu items
+  * loading and rendering UI textures
 
 ![Demo](demo.gif)
 
