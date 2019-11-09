@@ -10,5 +10,7 @@ ggez = "0.5.0"
 gfx_core = "0.9"
 gfx_device_gl = "0.16"
 
+image = "0.21"
+
 imgui = "0.1.0"
 imgui-gfx-renderer = "0.1.0"

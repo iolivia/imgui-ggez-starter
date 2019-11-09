@@ -1,10 +1,11 @@
 use ggez::graphics;
 use ggez::Context;
 
+// use gfx::texture::{FilterMethod, SamplerInfo, WrapMode};
 use gfx_core::{handle::RenderTargetView, memory::Typed};
-
 use gfx_device_gl;
 
+use image::ImageFormat;
 use imgui::*;
 use imgui_gfx_renderer::*;
 
@@ -23,6 +24,7 @@ pub struct ImGuiWrapper {
   last_frame: Instant,
   mouse_state: MouseState,
   show_popup: bool,
+  // my_texture_id: Option<TextureId>,
 }
 
 impl ImGuiWrapper {
@@ -51,6 +53,67 @@ impl ImGuiWrapper {
 
     // Renderer
     let renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
+
+    // let (_, texture_view) = factory.create_texture_immutable_u8::<gfx::format::Srgba8>(
+    //   gfx::texture::Kind::D2(WIDTH as u16, HEIGHT as u16, gfx::texture::AaMode::Single),
+    //   gfx::texture::Mipmap::Provided,
+    //   &[data.as_slice()],
+    // )?;
+    // let sampler = factory.create_sampler(SamplerInfo::new(FilterMethod::Bilinear, WrapMode::Clamp));
+    // let texture_id = textures.insert((texture_view, sampler));
+
+    // self.my_texture_id = Some(texture_id);
+
+    use gfx_core::factory::Factory;
+    use gfx_core::memory::Bind;
+    use gfx_core::memory::Usage;
+    use gfx_core::{format, texture};
+    let rgba_image = image::open(&std::path::Path::new("images/pikachu.png"))
+      .unwrap()
+      .to_rgba();
+    // println!("image {:?}", rgba_image);
+
+    let image_dimensions = rgba_image.dimensions();
+    let kind = texture::Kind::D2(
+      image_dimensions.0 as texture::Size,
+      image_dimensions.1 as texture::Size,
+      texture::AaMode::Single,
+    );
+    let info = texture::Info {
+      kind: kind,
+      levels: 1,
+      format: format::SurfaceType::R32_G32_B32_A32,
+      bind: Bind::SHADER_RESOURCE,
+      usage: Usage::Dynamic,
+    };
+    let raw = factory
+      .create_texture_raw(
+        info,
+        Some(format::ChannelType::Float),
+        Some((
+          &[rgba_image.into_raw().as_slice()],
+          texture::Mipmap::Provided,
+        )),
+      )
+      .unwrap();
+
+    // let image_dimensions = rgba_image.dimensions();
+    // let kind = texture::Kind::D2(
+    //     image_dimensions.0 as texture::Size,
+    //     image_dimensions.1 as texture::Size,
+    //     texture::AaMode::Single
+    // );
+    // let info = texture::Info {
+    //     kind: kind,
+    //     levels: 1,
+    //     format: <T::Surface as format::SurfaceTyped>::get_surface_type(),
+    //     bind: Bind::SHADER_RESOURCE,
+    //     usage: Usage::Dynamic,
+    // };
+    // let raw = factory.create_texture_raw(
+    //     info,
+    //     Some(<T::Channel as format::ChannelTyped>::get_channel_type()),
+    //     Some((&[rgba_image.into_raw().as_slice()], texture::Mipmap::Provided))).unwrap();
 
     // Create instace
     Self {
