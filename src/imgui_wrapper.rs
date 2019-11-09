@@ -1,8 +1,9 @@
 use ggez::graphics;
 use ggez::Context;
 
+use gfx_core::factory::Factory;
+use gfx_core::{format, texture};
 use gfx_core::{handle::RenderTargetView, memory::Typed};
-
 use gfx_device_gl;
 
 use imgui::*;
@@ -23,6 +24,7 @@ pub struct ImGuiWrapper {
   last_frame: Instant,
   mouse_state: MouseState,
   show_popup: bool,
+  texture_id: Option<TextureId>,
 }
 
 impl ImGuiWrapper {
@@ -50,7 +52,33 @@ impl ImGuiWrapper {
     };
 
     // Renderer
-    let renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
+    let mut renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
+
+    let rgba_image = image::open(&std::path::Path::new("images/pikachu.png"))
+      .unwrap()
+      .to_rgba();
+
+    // Load an image as a texture
+    let image_dimensions = rgba_image.dimensions();
+    let kind = texture::Kind::D2(
+      image_dimensions.0 as texture::Size,
+      image_dimensions.1 as texture::Size,
+      texture::AaMode::Single,
+    );
+    let (_, texture_view) = factory
+      .create_texture_immutable_u8::<format::Srgba8>(
+        kind,
+        texture::Mipmap::Provided,
+        &[rgba_image.into_raw().as_slice()],
+      )
+      .unwrap();
+
+    // Register the texture with the gfx renderer
+    let sampler = factory.create_sampler(texture::SamplerInfo::new(
+      texture::FilterMethod::Bilinear,
+      texture::WrapMode::Clamp,
+    ));
+    let texture_id = renderer.textures().insert((texture_view, sampler));
 
     // Create instace
     Self {
@@ -59,6 +87,7 @@ impl ImGuiWrapper {
       last_frame: Instant::now(),
       mouse_state: MouseState::default(),
       show_popup: false,
+      texture_id: Some(texture_id),
     }
   }
 
@@ -81,6 +110,19 @@ impl ImGuiWrapper {
 
     // Various ui things
     {
+      // Window with texture
+      if let Some(texture_id) = self.texture_id {
+        let image = Image::new(&ui, texture_id, [100.0, 100.0]);
+
+        // Window with texture
+        ui.window(im_str!("Hello textures"))
+          .size([150.0, 150.0], imgui::Condition::FirstUseEver)
+          .position([300.0, 150.0], imgui::Condition::FirstUseEver)
+          .build(|| {
+            image.build();
+          });
+      }
+
       // Window
       ui.window(im_str!("Hello world"))
         .size([300.0, 600.0], imgui::Condition::FirstUseEver)
