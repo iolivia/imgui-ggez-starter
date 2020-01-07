@@ -103,22 +103,29 @@ impl EventHandler for MainState {
     fn text_input_event(&mut self, _ctx: &mut Context, val: char) {
         self.imgui_wrapper.update_text(val);
     }
+
+    fn resize_event(&mut self, ctx: &mut Context, width: f32, height: f32) {
+        graphics::set_screen_coordinates(ctx, graphics::Rect::new(0.0, 0.0, width, height))
+            .unwrap();
+        //println!("{:?}", graphics::screen_coordinates(ctx));
+    }
+
+    fn mouse_wheel_event(&mut self, _ctx: &mut Context, x: f32, y: f32) {
+        println!("{}, {}", x, y);
+        self.imgui_wrapper.update_scroll(x, y);
+    }
 }
 
 pub fn main() -> ggez::GameResult {
-    let hidpi_factor: f32;
-    {
-        // Create a dummy window so we can get monitor scaling information
-        let cb = ggez::ContextBuilder::new("", "");
-        let (_ctx, events_loop) = &mut cb.build()?;
-        hidpi_factor = events_loop.get_primary_monitor().get_hidpi_factor() as f32;
-        println!("main hidpi_factor = {}", hidpi_factor);
-    }
-
     let cb = ggez::ContextBuilder::new("super_simple with imgui", "ggez")
         .window_setup(conf::WindowSetup::default().title("super_simple with imgui"))
-        .window_mode(conf::WindowMode::default().dimensions(750.0, 500.0));
+        .window_mode(
+            conf::WindowMode::default().resizable(true), /*.dimensions(750.0, 500.0)*/
+        );
     let (ref mut ctx, event_loop) = &mut cb.build()?;
+
+    let hidpi_factor = event_loop.get_primary_monitor().get_hidpi_factor() as f32;
+    println!("main hidpi_factor = {}", hidpi_factor);
 
     let state = &mut MainState::new(ctx, hidpi_factor)?;
 

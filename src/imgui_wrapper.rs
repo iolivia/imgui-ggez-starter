@@ -177,4 +177,10 @@ impl ImGuiWrapper {
   pub fn update_text(&mut self, val: char) {
     self.imgui.io_mut().add_input_character(val);
   }
+
+  pub fn update_scroll(&mut self, x: f32, y: f32) {
+    self.imgui.io_mut().mouse_wheel += y;
+    self.imgui.io_mut().mouse_wheel_h += x;
+    println!("{}", self.imgui.io().mouse_wheel);
+  }
 }
