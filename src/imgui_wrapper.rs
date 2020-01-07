@@ -158,59 +158,23 @@ impl ImGuiWrapper {
     self.imgui.io_mut().key_shift = mods.contains(KeyMods::SHIFT);
     self.imgui.io_mut().key_ctrl = mods.contains(KeyMods::CTRL);
     self.imgui.io_mut().key_alt = mods.contains(KeyMods::ALT);
-    let keychar: Option<char> = match key {
-      KeyCode::Key0 => Some('0'),
-      KeyCode::Key1 => Some('1'),
-      KeyCode::Key2 => Some('2'),
-      KeyCode::Key3 => Some('3'),
-      KeyCode::Key4 => Some('4'),
-      KeyCode::Key5 => Some('5'),
-      KeyCode::Key6 => Some('6'),
-      KeyCode::Key7 => Some('7'),
-      KeyCode::Key8 => Some('8'),
-      KeyCode::Key9 => Some('9'),
-      KeyCode::A => Some('a'),
-      KeyCode::B => Some('b'),
-      KeyCode::C => Some('c'),
-      KeyCode::D => Some('d'),
-      KeyCode::E => Some('e'),
-      KeyCode::F => Some('f'),
-      KeyCode::G => Some('g'),
-      KeyCode::H => Some('h'),
-      KeyCode::I => Some('i'),
-      KeyCode::J => Some('j'),
-      KeyCode::K => Some('k'),
-      KeyCode::L => Some('l'),
-      KeyCode::M => Some('m'),
-      KeyCode::N => Some('n'),
-      KeyCode::O => Some('o'),
-      KeyCode::P => Some('p'),
-      KeyCode::Q => Some('q'),
-      KeyCode::R => Some('r'),
-      KeyCode::S => Some('s'),
-      KeyCode::T => Some('t'),
-      KeyCode::U => Some('u'),
-      KeyCode::V => Some('v'),
-      KeyCode::W => Some('w'),
-      KeyCode::X => Some('x'),
-      KeyCode::Y => Some('y'),
-      KeyCode::Z => Some('z'),
-      _ => None,
-    };
-    if let Some(val) = keychar {
-      self
-        .imgui
-        .io_mut()
-        .add_input_character(if mods.contains(KeyMods::SHIFT) {
-          val.to_uppercase().next().unwrap()
-        } else {
-          val
-        });
-    }
     self.imgui.io_mut().keys_down[key as usize] = true;
   }
 
-  pub fn update_key_up(&mut self, key: KeyCode, _mods: KeyMods) {
+  pub fn update_key_up(&mut self, key: KeyCode, mods: KeyMods) {
+    if mods.contains(KeyMods::SHIFT) {
+      self.imgui.io_mut().key_shift = false;
+    }
+    if mods.contains(KeyMods::CTRL) {
+      self.imgui.io_mut().key_ctrl = false;
+    }
+    if mods.contains(KeyMods::ALT) {
+      self.imgui.io_mut().key_alt = false;
+    }
     self.imgui.io_mut().keys_down[key as usize] = false;
+  }
+
+  pub fn update_text(&mut self, val: char) {
+    self.imgui.io_mut().add_input_character(val);
   }
 }

@@ -99,6 +99,10 @@ impl EventHandler for MainState {
     fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, keymods: KeyMods) {
         self.imgui_wrapper.update_key_up(keycode, keymods);
     }
+
+    fn text_input_event(&mut self, _ctx: &mut Context, val: char) {
+        self.imgui_wrapper.update_text(val);
+    }
 }
 
 pub fn main() -> ggez::GameResult {
