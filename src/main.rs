@@ -90,15 +90,14 @@ impl EventHandler for MainState {
         &mut self,
         _ctx: &mut Context,
         keycode: KeyCode,
-        _keymods: KeyMods,
+        keymods: KeyMods,
         _repeat: bool,
     ) {
-        match keycode {
-            KeyCode::P => {
-                self.imgui_wrapper.open_popup();
-            }
-            _ => (),
-        }
+        self.imgui_wrapper.update_key_down(keycode, keymods);
+    }
+
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, keymods: KeyMods) {
+        self.imgui_wrapper.update_key_up(keycode, keymods);
     }
 }
 

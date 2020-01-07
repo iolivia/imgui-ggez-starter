@@ -1,8 +1,7 @@
+use ggez::event::{KeyCode, KeyMods};
 use ggez::graphics;
 use ggez::Context;
 
-use gfx_core::factory::Factory;
-use gfx_core::{format, texture};
 use gfx_core::{handle::RenderTargetView, memory::Typed};
 use gfx_device_gl;
 
@@ -23,8 +22,6 @@ pub struct ImGuiWrapper {
   pub renderer: Renderer<gfx_core::format::Rgba8, gfx_device_gl::Resources>,
   last_frame: Instant,
   mouse_state: MouseState,
-  show_popup: bool,
-  texture_id: Option<TextureId>,
 }
 
 impl ImGuiWrapper {
@@ -54,40 +51,38 @@ impl ImGuiWrapper {
     // Renderer
     let mut renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
 
-    let rgba_image = image::open(&std::path::Path::new("images/pikachu.png"))
-      .unwrap()
-      .to_rgba();
+    {
+      let mut io = imgui.io_mut();
+      io[Key::Tab] = KeyCode::Tab as _;
+      io[Key::LeftArrow] = KeyCode::Left as _;
+      io[Key::RightArrow] = KeyCode::Right as _;
+      io[Key::UpArrow] = KeyCode::Up as _;
+      io[Key::DownArrow] = KeyCode::Down as _;
+      io[Key::PageUp] = KeyCode::PageUp as _;
+      io[Key::PageDown] = KeyCode::PageDown as _;
+      io[Key::Home] = KeyCode::Home as _;
+      io[Key::End] = KeyCode::End as _;
+      io[Key::Insert] = KeyCode::Insert as _;
+      io[Key::Delete] = KeyCode::Delete as _;
+      io[Key::Backspace] = KeyCode::Back as _;
+      io[Key::Space] = KeyCode::Space as _;
+      io[Key::Enter] = KeyCode::Return as _;
+      io[Key::Escape] = KeyCode::Escape as _;
+      io[Key::KeyPadEnter] = KeyCode::NumpadEnter as _;
+      io[Key::A] = KeyCode::A as _;
+      io[Key::C] = KeyCode::C as _;
+      io[Key::V] = KeyCode::V as _;
+      io[Key::X] = KeyCode::X as _;
+      io[Key::Y] = KeyCode::Y as _;
+      io[Key::Z] = KeyCode::Z as _;
+    }
 
-    // Load an image as a texture
-    let image_dimensions = rgba_image.dimensions();
-    let kind = texture::Kind::D2(
-      image_dimensions.0 as texture::Size,
-      image_dimensions.1 as texture::Size,
-      texture::AaMode::Single,
-    );
-    let (_, texture_view) = factory
-      .create_texture_immutable_u8::<format::Srgba8>(
-        kind,
-        texture::Mipmap::Provided,
-        &[rgba_image.into_raw().as_slice()],
-      )
-      .unwrap();
-
-    // Register the texture with the gfx renderer
-    let sampler = factory.create_sampler(texture::SamplerInfo::new(
-      texture::FilterMethod::Bilinear,
-      texture::WrapMode::Clamp,
-    ));
-    let texture_id = renderer.textures().insert((texture_view, sampler));
-
-    // Create instace
+    // Create instance
     Self {
       imgui,
       renderer,
       last_frame: Instant::now(),
       mouse_state: MouseState::default(),
-      show_popup: false,
-      texture_id: Some(texture_id),
     }
   }
 
@@ -107,81 +102,19 @@ impl ImGuiWrapper {
     self.imgui.io_mut().delta_time = delta_s;
 
     let ui = self.imgui.frame();
+    let mut show = true;
 
     // Various ui things
     {
-      // Window with texture
-      if let Some(texture_id) = self.texture_id {
-        let image = Image::new(&ui, texture_id, [100.0, 100.0]);
-
-        // Window with texture
-        ui.window(im_str!("Hello textures"))
-          .size([150.0, 150.0], imgui::Condition::FirstUseEver)
-          .position([300.0, 150.0], imgui::Condition::FirstUseEver)
-          .build(|| {
-            image.build();
-          });
-      }
-
       // Window
-      ui.window(im_str!("Hello world"))
+      Window::new(im_str!("Hello world"))
         .size([300.0, 600.0], imgui::Condition::FirstUseEver)
-        .position([100.0, 100.0], imgui::Condition::FirstUseEver)
-        .build(|| {
-          ui.text(im_str!("Hello world!"));
-          ui.text(im_str!("こんにちは世界！"));
-          ui.text(im_str!("This...is...imgui-rs!"));
-          ui.separator();
-          let mouse_pos = ui.io().mouse_pos;
-          ui.text(im_str!(
-            "Mouse Position: ({:.1},{:.1})",
-            mouse_pos[0],
-            mouse_pos[1]
-          ));
-
-          if ui.small_button(im_str!("small button")) {
-            println!("Small button clicked");
-          }
+        .position([50.0, 50.0], imgui::Condition::FirstUseEver)
+        .build(&ui, || {
+          // Your window stuff here!
+          ui.text(im_str!("Hi from this label!"));
         });
-
-      // Popup
-      ui.popup(im_str!("popup"), || {
-        if ui.menu_item(im_str!("popup menu item 1")).build() {
-          println!("popup menu item 1 clicked");
-        }
-
-        if ui.menu_item(im_str!("popup menu item 2")).build() {
-          println!("popup menu item 2 clicked");
-        }
-      });
-
-      // Menu bar
-      ui.main_menu_bar(|| {
-        ui.menu(im_str!("Menu 1")).build(|| {
-          if ui.menu_item(im_str!("Item 1.1")).build() {
-            println!("item 1.1 inside menu bar clicked");
-          }
-
-          ui.menu(im_str!("Item 1.2")).build(|| {
-            if ui.menu_item(im_str!("Item 1.2.1")).build() {
-              println!("item 1.2.1 inside menu bar clicked");
-            }
-            if ui.menu_item(im_str!("Item 1.2.2")).build() {
-              println!("item 1.2.2 inside menu bar clicked");
-            }
-          });
-        });
-
-        ui.menu(im_str!("Menu 2")).build(|| {
-          if ui.menu_item(im_str!("Item 2.1")).build() {
-            println!("item 2.1 inside menu bar clicked");
-          }
-        });
-      });
-    }
-
-    if self.show_popup {
-      ui.open_popup(im_str!("popup"));
+      ui.show_demo_window(&mut show);
     }
 
     // Render
@@ -219,13 +152,65 @@ impl ImGuiWrapper {
 
   pub fn update_mouse_down(&mut self, pressed: (bool, bool, bool)) {
     self.mouse_state.pressed = pressed;
-
-    if pressed.0 {
-      self.show_popup = false;
-    }
   }
 
-  pub fn open_popup(&mut self) {
-    self.show_popup = true;
+  pub fn update_key_down(&mut self, key: KeyCode, mods: KeyMods) {
+    self.imgui.io_mut().key_shift = mods.contains(KeyMods::SHIFT);
+    self.imgui.io_mut().key_ctrl = mods.contains(KeyMods::CTRL);
+    self.imgui.io_mut().key_alt = mods.contains(KeyMods::ALT);
+    let keychar: Option<char> = match key {
+      KeyCode::Key0 => Some('0'),
+      KeyCode::Key1 => Some('1'),
+      KeyCode::Key2 => Some('2'),
+      KeyCode::Key3 => Some('3'),
+      KeyCode::Key4 => Some('4'),
+      KeyCode::Key5 => Some('5'),
+      KeyCode::Key6 => Some('6'),
+      KeyCode::Key7 => Some('7'),
+      KeyCode::Key8 => Some('8'),
+      KeyCode::Key9 => Some('9'),
+      KeyCode::A => Some('a'),
+      KeyCode::B => Some('b'),
+      KeyCode::C => Some('c'),
+      KeyCode::D => Some('d'),
+      KeyCode::E => Some('e'),
+      KeyCode::F => Some('f'),
+      KeyCode::G => Some('g'),
+      KeyCode::H => Some('h'),
+      KeyCode::I => Some('i'),
+      KeyCode::J => Some('j'),
+      KeyCode::K => Some('k'),
+      KeyCode::L => Some('l'),
+      KeyCode::M => Some('m'),
+      KeyCode::N => Some('n'),
+      KeyCode::O => Some('o'),
+      KeyCode::P => Some('p'),
+      KeyCode::Q => Some('q'),
+      KeyCode::R => Some('r'),
+      KeyCode::S => Some('s'),
+      KeyCode::T => Some('t'),
+      KeyCode::U => Some('u'),
+      KeyCode::V => Some('v'),
+      KeyCode::W => Some('w'),
+      KeyCode::X => Some('x'),
+      KeyCode::Y => Some('y'),
+      KeyCode::Z => Some('z'),
+      _ => None,
+    };
+    if let Some(val) = keychar {
+      self
+        .imgui
+        .io_mut()
+        .add_input_character(if mods.contains(KeyMods::SHIFT) {
+          val.to_uppercase().next().unwrap()
+        } else {
+          val
+        });
+    }
+    self.imgui.io_mut().keys_down[key as usize] = true;
+  }
+
+  pub fn update_key_up(&mut self, key: KeyCode, _mods: KeyMods) {
+    self.imgui.io_mut().keys_down[key as usize] = false;
   }
 }
