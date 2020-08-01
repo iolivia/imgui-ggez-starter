@@ -111,7 +111,6 @@ impl EventHandler for MainState {
     }
 
     fn mouse_wheel_event(&mut self, _ctx: &mut Context, x: f32, y: f32) {
-        println!("{}, {}", x, y);
         self.imgui_wrapper.update_scroll(x, y);
     }
 }

@@ -15,6 +15,7 @@ struct MouseState {
   pos: (i32, i32),
   pressed: (bool, bool, bool),
   wheel: f32,
+  wheel_h: f32,
 }
 
 pub struct ImGuiWrapper {
@@ -144,6 +145,9 @@ impl ImGuiWrapper {
 
     self.imgui.io_mut().mouse_wheel = self.mouse_state.wheel;
     self.mouse_state.wheel = 0.0;
+
+    self.imgui.io_mut().mouse_wheel_h = self.mouse_state.wheel_h;
+    self.mouse_state.wheel_h = 0.0;
   }
 
   pub fn update_mouse_pos(&mut self, x: f32, y: f32) {
@@ -179,8 +183,7 @@ impl ImGuiWrapper {
   }
 
   pub fn update_scroll(&mut self, x: f32, y: f32) {
-    self.imgui.io_mut().mouse_wheel += y;
-    self.imgui.io_mut().mouse_wheel_h += x;
-    println!("{}", self.imgui.io().mouse_wheel);
+    self.mouse_state.wheel += y;
+    self.mouse_state.wheel_h += x;
   }
 }

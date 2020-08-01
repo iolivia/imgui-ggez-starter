@@ -5,10 +5,10 @@ authors = ["oliviaifrim"]
 edition = "2018"
 
 [dependencies]
-ggez = "0.5.0"
+ggez = "0.5.1"
 
-gfx_core = "0.9"
-gfx_device_gl = "0.16"
+gfx_core = "0.9.2"
+gfx_device_gl = "0.16.2"
 
-imgui = "0.2"
-imgui-gfx-renderer = "0.2"
+imgui = "0.4"
+imgui-gfx-renderer = "0.4"
