@@ -69,21 +69,17 @@ impl EventHandler for MainState {
         _x: f32,
         _y: f32,
     ) {
-        self.imgui_wrapper.update_mouse_down((
-            button == MouseButton::Left,
-            button == MouseButton::Right,
-            button == MouseButton::Middle,
-        ));
+        self.imgui_wrapper.update_mouse_down(button);
     }
 
     fn mouse_button_up_event(
         &mut self,
         _ctx: &mut Context,
-        _button: MouseButton,
+        button: MouseButton,
         _x: f32,
         _y: f32,
     ) {
-        self.imgui_wrapper.update_mouse_down((false, false, false));
+        self.imgui_wrapper.update_mouse_up(button);
     }
 
     fn key_down_event(
