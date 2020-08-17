@@ -1,4 +1,4 @@
-use ggez::event::{KeyCode, KeyMods};
+use ggez::event::{KeyCode, KeyMods, MouseButton};
 use ggez::graphics;
 use ggez::Context;
 
@@ -13,6 +13,7 @@ use std::time::Instant;
 #[derive(Copy, Clone, PartialEq, Debug, Default)]
 struct MouseState {
   pos: (i32, i32),
+  /// mouse buttons: (left, right, middle)
   pressed: (bool, bool, bool),
   wheel: f32,
   wheel_h: f32,
@@ -154,8 +155,22 @@ impl ImGuiWrapper {
     self.mouse_state.pos = (x as i32, y as i32);
   }
 
-  pub fn update_mouse_down(&mut self, pressed: (bool, bool, bool)) {
-    self.mouse_state.pressed = pressed;
+  pub fn update_mouse_down(&mut self, button: MouseButton) {
+    match button {
+      MouseButton::Left => self.mouse_state.pressed.0 = true,
+      MouseButton::Right => self.mouse_state.pressed.1 = true,
+      MouseButton::Middle => self.mouse_state.pressed.2 = true,
+      _ => ()
+    }
+  }
+
+  pub fn update_mouse_up(&mut self, button: MouseButton) {
+    match button {
+      MouseButton::Left => self.mouse_state.pressed.0 = false,
+      MouseButton::Right => self.mouse_state.pressed.1 = false,
+      MouseButton::Middle => self.mouse_state.pressed.2 = false,
+      _ => ()
+    }
   }
 
   pub fn update_key_down(&mut self, key: KeyCode, mods: KeyMods) {
